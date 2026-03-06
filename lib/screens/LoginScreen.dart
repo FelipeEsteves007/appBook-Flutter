@@ -48,6 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height:10),
                   TextFormField(
+                    cursorColor: gold,
                     controller: _userController,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
@@ -70,6 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height:10),
                   const SizedBox(height:10),
                   TextFormField(
+                    cursorColor: gold,
                     controller: _passController,
                     style: const TextStyle(color: Colors.white),
                     obscureText: true,

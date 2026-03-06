@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
 import 'dart:convert';
 class Bookscreen extends StatefulWidget {
   const Bookscreen({super.key});
@@ -13,6 +14,7 @@ class _BookscreenState extends State<Bookscreen> {
   final TextEditingController  _isbnController = TextEditingController();
   Map<String,dynamic>? bookData;
   bool load = false;
+  String? ErrorMessage;
 
   Future<void> searchBook() async{
     String isbn = _isbnController.text;
@@ -30,10 +32,12 @@ class _BookscreenState extends State<Bookscreen> {
       if (response.statusCode == 200){
         setState(() {
           bookData = json.decode(response.body);
+          ErrorMessage = null;
         });
       } else {
         setState(() {
           bookData = null;
+          ErrorMessage = "Ops! Não encontramos esse livro. \nVerifique o ISBN e tente de novo.";
         });
       }
     } catch (e) {
@@ -69,7 +73,7 @@ class _BookscreenState extends State<Bookscreen> {
             padding: const EdgeInsets.all(7),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+            children: <Widget>[
               const Text('ISBN Code',
               style: TextStyle(
                 fontSize: 18,
@@ -87,8 +91,11 @@ class _BookscreenState extends State<Bookscreen> {
                 ),
                 child: TextField(
                   controller: _isbnController,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  keyboardType: TextInputType.number,
+                  cursorColor: gold,
                   style: TextStyle(
-                    color: Colors.white
+                    color: Colors.white,
                   ),
                   decoration: const InputDecoration(
                     hintText: 'Code',
@@ -120,6 +127,27 @@ class _BookscreenState extends State<Bookscreen> {
                               ),
                             ),
               ),
+              if (ErrorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.redAccent, width: 0.5),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline, color: Colors.redAccent),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(ErrorMessage!, style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
               child: Column(
@@ -272,7 +300,7 @@ class _BookscreenState extends State<Bookscreen> {
                                 child: bookData?['cover_url'] != null
                                     ? Image.network(bookData!['cover_url'], height: 100)
                                     : const Text('---'),
-                              )
+                              ),
                             ],
                           ),
                           const Divider(),
